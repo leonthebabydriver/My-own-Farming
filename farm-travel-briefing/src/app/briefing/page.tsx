@@ -2,7 +2,15 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useLanguage, translateWeatherTerm } from "@/lib/i18n";
+import { useLanguage, translateWeatherTerm, type Lang } from "@/lib/i18n";
+
+const LANG_OPTIONS: { code: Lang; label: string }[] = [
+  { code: "en", label: "EN" },
+  { code: "zh", label: "中文" },
+  { code: "vi", label: "VN" },
+  { code: "ja", label: "JP" },
+  { code: "ko", label: "KR" },
+];
 
 type BusResult = {
   route?: string;
@@ -20,7 +28,13 @@ type WeatherSummaryEntry = {
 type BriefingResponse = {
   ok: boolean;
   error?: string;
-  farm?: { id: string; name: string; nameZh?: string; address: string };
+  farm?: {
+    id: string;
+    name: string;
+    nameZh?: string;
+    address: string;
+    addressZh?: string;
+  };
   transport?: {
     ok: boolean;
     error?: string;
@@ -72,23 +86,20 @@ function BriefingContent() {
   }, [farmId]);
 
   const LangToggle = (
-    <div className="flex shrink-0 gap-1 rounded-full border border-zinc-200 p-0.5 text-xs dark:border-zinc-800">
-      <button
-        onClick={() => setLang("en")}
-        className={`rounded-full px-2 py-1 ${
-          lang === "en" ? "bg-black text-white dark:bg-white dark:text-black" : "text-zinc-500"
-        }`}
-      >
-        EN
-      </button>
-      <button
-        onClick={() => setLang("zh")}
-        className={`rounded-full px-2 py-1 ${
-          lang === "zh" ? "bg-black text-white dark:bg-white dark:text-black" : "text-zinc-500"
-        }`}
-      >
-        中文
-      </button>
+    <div className="flex shrink-0 flex-wrap gap-1 rounded-full border border-zinc-200 p-0.5 text-xs dark:border-zinc-800">
+      {LANG_OPTIONS.map(({ code, label }) => (
+        <button
+          key={code}
+          onClick={() => setLang(code)}
+          className={`rounded-full px-2 py-1 ${
+            lang === code
+              ? "bg-black text-white dark:bg-white dark:text-black"
+              : "text-zinc-500"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 
@@ -157,7 +168,7 @@ function BriefingContent() {
             {lang === "zh" && farm.nameZh ? farm.nameZh : farm.name}
           </h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            {farm.address}
+            {lang === "zh" && farm.addressZh ? farm.addressZh : farm.address}
           </p>
         </div>
         {LangToggle}
@@ -214,7 +225,7 @@ function BriefingContent() {
           </p>
         )}
 
-        {weather?.ok && lang === "en" && englishSummary && (
+        {weather?.ok && lang !== "zh" && englishSummary && (
           <p className="mb-4 rounded bg-zinc-50 p-3 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
             {englishSummary}
           </p>

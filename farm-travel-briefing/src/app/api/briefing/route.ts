@@ -63,6 +63,7 @@ export async function GET(req: NextRequest) {
       name: farm.name,
       nameZh: farm.nameZh,
       address: farm.address,
+      addressZh: farm.addressZh,
     },
     transport:
       transportResult.status === "fulfilled"
